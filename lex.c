@@ -216,5 +216,6 @@ int main (int argc, char *argv[]) {
     }
     c = fgetc(fp);
   }
+  fclose(fp);
   return 0;
 }
