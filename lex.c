@@ -105,6 +105,10 @@ Token getNextToken(FILE* fp){
     int j = 0;
     while ((isalnum(ch) || ch == '_')) {
       token.lexeme[j++] = ch;
+      if(j > MAX_IDENT_LEN) {
+        printf("Identifiers must be smaller or equal than %d characters\n",MAX_IDENT_LEN);
+        exit(1);
+      }
       ch = fgetc(fp);
     }
     ungetc(ch, fp);
