@@ -123,6 +123,10 @@ Token getNextToken(FILE* fp){
   int operatorStatus = isOperator(ch, fp);
   if (operatorStatus != 0) {
     if(operatorStatus == 1){
+      if (ch == ':') {
+        printf("Invalid operator, assignment operator must be used like ':='\n");
+        exit(1);
+      }
       token.lexeme[0] = ch;
       token.lexeme[1] = '\0';
     } else {
