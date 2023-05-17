@@ -44,6 +44,17 @@ int isOperator (char ch, FILE *fp) {
   return 0;
 }
 
+void isKeyword (Token* token) {
+  const char* keywords[] = {"break", "case", "char", "const", "continue", "do", "else", "enum", "float",
+                          "for", "goto", "if", "int", "long", "record", "return", "static", "while"};
+  for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+    if (strcasecmp( keywords[i], (*token).lexeme) == 0) {
+      (*token).type = KEYWORD;
+      return;
+    }
+  }
+}
+
 Token getNextToken(FILE* fp){
   Token token;
 
@@ -98,6 +109,7 @@ Token getNextToken(FILE* fp){
     ungetc(ch, fp);
     token.lexeme[j] = '\0'; //null terminator, marks the end of a string
     token.type = IDENTIFIER;
+    isKeyword(&token);
     return token;
   }
 
@@ -108,7 +120,7 @@ Token getNextToken(FILE* fp){
   if (operatorStatus != 0) {
     if(operatorStatus == 1){
       strcpy(token.lexeme, &ch);
-    } else if(operatorStatus == 2) {
+    } else {
       token.lexeme[0] = ch;
       token.lexeme[1] = fgetc(fp);
     }
