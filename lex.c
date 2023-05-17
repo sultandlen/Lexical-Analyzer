@@ -123,6 +123,7 @@ Token getNextToken(FILE* fp){
     } else {
       token.lexeme[0] = ch;
       token.lexeme[1] = fgetc(fp);
+      token.lexeme[2] = '\0';
     }
     token.type = OPERATOR;
     return token;
