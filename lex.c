@@ -107,10 +107,12 @@ Token getNextToken(FILE* fp){
   int operatorStatus = isOperator(ch, fp);
   if (operatorStatus != 0) {
     if(operatorStatus == 1){
-      strcpy(token.lexeme, &ch);
+      token.lexeme[0] = ch;
+      token.lexeme[1] = '\0';
     } else if(operatorStatus == 2) {
       token.lexeme[0] = ch;
       token.lexeme[1] = fgetc(fp);
+      token.lexeme[2] = '\0';
     }
     token.type = OPERATOR;
     return token;
