@@ -1,6 +1,7 @@
 #include <string.h>
 #include "stdio.h"
 #include <ctype.h>
+#include <stdlib.h>
 
 #define MAX_IDENT_LEN 30
 #define MAX_INT_LEN 10
@@ -134,6 +135,10 @@ Token getNextToken(FILE* fp){
     int j = 0;
     while (isdigit(ch)) {
       token.lexeme[j++] = ch;
+      if(j > MAX_INT_LEN) {
+        printf("Integers must be smaller or equal than %d digits\n",MAX_INT_LEN);
+        exit(1);
+      }
       ch = fgetc(fp);
     }
     ungetc(ch,fp);
