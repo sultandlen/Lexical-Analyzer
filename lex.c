@@ -57,7 +57,7 @@ void isKeyword (Token* token) {
   }
 }
 
-Token getNextToken(FILE* fp){
+Token getNextToken(FILE* fp, FILE* fwp){
   Token token;
 
   // Skip white spaces
@@ -183,6 +183,23 @@ Token getNextToken(FILE* fp){
     token.type = INT_CONST;
     return token;
   }
+
+  if(ch == '"') {
+    ch = fgetc(fp);
+    printf("StringConst(\"");
+    fprintf(fwp, "StringConst(\"");
+    while(ch != '"') {
+      if(ch == EOF){
+        printf("String must be terminated before file ends\n");
+        exit(1);
+        }
+      printf("%c", ch);
+      fprintf(fwp, "%c", ch);
+      ch = fgetc(fp);
+    }
+    printf("\")\n");
+    fprintf(fwp, "\")\n");
+  }
 }
 
 
@@ -206,7 +223,7 @@ int main (int argc, char *argv[]) {
   char c = fgetc(fp);
   while (c != EOF){
     ungetc(c, fp);
-    token = getNextToken(fp);
+    token = getNextToken(fp, fwp);
     switch (token.type) {
       case IDENTIFIER:
         printf("Identifier(%s)\n", token.lexeme);
