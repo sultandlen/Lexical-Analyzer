@@ -199,7 +199,7 @@ Token getNextToken(FILE* fp, FILE* fwp){
     }
     printf("\")\n");
     fprintf(fwp, "\")\n");
-    token.type = NO_TYPE;
+    token.type = STRING_CONST;
     return token;
   }
 }
@@ -264,8 +264,6 @@ int main (int argc, char *argv[]) {
         fprintf(fwp, "RightCurlyBracket\n");
         break;
       case STRING_CONST:
-        printf("StringConst(\"%s\")\n", token.lexeme);
-        fprintf(fwp, "StringConst(\"%s\")\n", token.lexeme);
         break;
       case KEYWORD:
         printf("Keyword(%s)\n", token.lexeme);
