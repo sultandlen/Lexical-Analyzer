@@ -18,7 +18,8 @@ typedef enum {
     RIGHT_CURLY_BRACKET,
     STRING_CONST,
     KEYWORD,
-    ENDOFLINE
+    ENDOFLINE,
+    NO_TYPE
 } TokenType;
 
 typedef struct {
@@ -27,7 +28,7 @@ typedef struct {
 } Token;
 
 int isOperator (char ch, FILE *fp) {
-  const char* operators[] = {"+", "-", "*", "/", ":"};
+  const char* operators[] = {"+", "-", "*", ":"};
   int numOperators = sizeof(operators) / sizeof(operators[0]);
   for (int i = 0; i < numOperators; i++) {
     if (ch == *operators[i]) {
@@ -59,10 +60,39 @@ void isKeyword (Token* token) {
 Token getNextToken(FILE* fp){
   Token token;
 
-  //skip white spaces
+  // Skip white spaces
   char ch = fgetc(fp);
   while (isspace(ch)) {
     ch = fgetc(fp);
+  }
+
+  // Check EOF
+  if(ch == EOF){
+    exit(0);
+  }
+
+  // Skip comments
+  if (ch == '/') {
+    char c = fgetc(fp);
+    char nextc;
+    if (c == '*') {
+      do {
+        if (nextc == EOF) {
+          printf("Lexical Error: Comment cannot terminated!");
+          break;
+        }
+        c = nextc;
+        nextc = fgetc(fp);
+      } while (!(c == '*' && nextc == '/'));
+        token.type = NO_TYPE;
+        return token;
+    } else {
+      ungetc(c, fp);
+      token.type = OPERATOR;
+      token.lexeme[0] = '/';
+      token.lexeme[1] = '\0';
+      return token;
+    }
   }
 
   //check for end of line
@@ -117,7 +147,6 @@ Token getNextToken(FILE* fp){
     isKeyword(&token);
     return token;
   }
-
 
   // Check for operators
   int operatorStatus = isOperator(ch, fp);
@@ -214,6 +243,7 @@ int main (int argc, char *argv[]) {
         printf("EndOfLine\n");
         break;
     }
+    token.type = NO_TYPE;
     c = fgetc(fp);
   }
   fclose(fp);
