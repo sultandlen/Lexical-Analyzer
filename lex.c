@@ -199,6 +199,8 @@ Token getNextToken(FILE* fp, FILE* fwp){
     }
     printf("\")\n");
     fprintf(fwp, "\")\n");
+    token.type = NO_TYPE;
+    return token;
   }
 }
 
