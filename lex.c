@@ -200,6 +200,8 @@ int main (int argc, char *argv[]) {
     return 1;
   }
 
+  FILE * fwp = fopen("code.lex", "w");
+
   Token token;
   char c = fgetc(fp);
   while (c != EOF){
@@ -208,44 +210,58 @@ int main (int argc, char *argv[]) {
     switch (token.type) {
       case IDENTIFIER:
         printf("Identifier(%s)\n", token.lexeme);
+        fprintf(fwp, "Identifier(%s)\n", token.lexeme);
         break;
       case INT_CONST:
         printf("IntConst(%s)\n", token.lexeme);
+        fprintf(fwp, "IntConst(%s)\n", token.lexeme);
         break;
       case OPERATOR:
         printf("Operator(%s)\n", token.lexeme);
+        fprintf(fwp, "Operator(%s)\n", token.lexeme);
         break;
       case LEFT_PAR:
         printf("LeftPar\n");
+        fprintf(fwp, "LeftPar\n");
         break;
       case RIGHT_PAR:
         printf("RightPar\n");
+        fprintf(fwp, "RightPar\n");
         break;
       case LEFT_SQUARE_BRACKET:
         printf("LeftSquareBracket\n");
+        fprintf(fwp, "LeftSquareBracket\n");
         break;
       case RIGHT_SQUARE_BRACKET:
         printf("RightSquareBracket\n");
+        fprintf(fwp, "RightSquareBracket\n");
         break;
       case LEFT_CURLY_BRACKET:
         printf("LeftCurlyBracket\n");
+        fprintf(fwp, "LeftCurlyBracket\n");
         break;
       case RIGHT_CURLY_BRACKET:
         printf("RightCurlyBracket\n");
+        fprintf(fwp, "RightCurlyBracket\n");
         break;
       case STRING_CONST:
         printf("StringConst(\"%s\")\n", token.lexeme);
+        fprintf(fwp, "StringConst(\"%s\")\n", token.lexeme);
         break;
       case KEYWORD:
         printf("Keyword(%s)\n", token.lexeme);
+        fprintf(fwp, "Keyword(%s)\n", token.lexeme);
         break;
       case ENDOFLINE:
         printf("EndOfLine\n");
+        fprintf(fwp, "EndOfLine\n");
         break;
     }
     token.type = NO_TYPE;
     c = fgetc(fp);
   }
+  fclose(fwp);
   fclose(fp);
+  printf("Lexical analysis completed!\n");
   return 0;
 }
