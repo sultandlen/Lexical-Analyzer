@@ -207,12 +207,12 @@ Token getNextToken(FILE* fp, FILE* fwp){
 
 
 int main (int argc, char *argv[]) {
-  if(argc != 2) {
-    printf("Please specify a file: %s <filename>\n",argv[0]);
-    return 1;
+  char* file = "code.psi";
+  if(argc > 1) {
+    file = argv[1];
   }
-
-  FILE *fp = fopen(argv[1], "r");
+  
+  FILE *fp = fopen(file, "r");
 
   if(fp == NULL) {
     printf("Cannot open file: %s\n", argv[1]);
