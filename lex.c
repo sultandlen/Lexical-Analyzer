@@ -46,6 +46,13 @@ int isOperator (char ch, FILE *fp) {
   return 0;
 }
 
+void raiseError(char* message, FILE* fwp) {
+  printf("Lexical ERR!  %s\n", message);
+  fprintf(fwp, "Lexical ERR! %s\n", message);
+  printf("Detailed error information can be found in the output file code.lex\n");
+  exit(1);
+}
+
 void isKeyword (Token* token) {
   const char* keywords[] = {"break", "case", "char", "const", "continue", "do", "else", "enum", "float",
                           "for", "goto", "if", "int", "long", "record", "return", "static", "while"};
@@ -68,7 +75,8 @@ Token getNextToken(FILE* fp, FILE* fwp){
 
   // Check EOF
   if(ch == EOF){
-    exit(0);
+    token.type = NO_TYPE;
+    return token;
   }
 
   // Skip comments
@@ -78,8 +86,7 @@ Token getNextToken(FILE* fp, FILE* fwp){
     if (c == '*') {
       do {
         if (nextc == EOF) {
-          printf("Lexical Error: Comment cannot terminated!");
-          break;
+          raiseError("Comment cannot terminated!", fwp);
         }
         c = nextc;
         nextc = fgetc(fp);
@@ -136,8 +143,8 @@ Token getNextToken(FILE* fp, FILE* fwp){
     while ((isalnum(ch) || ch == '_')) {
       token.lexeme[j++] = ch;
       if(j > MAX_IDENT_LEN) {
-        printf("Identifiers must be smaller or equal than %d characters\n",MAX_IDENT_LEN);
-        exit(1);
+        //TODO:
+        raiseError("Identifiers must be smaller or equal than 30 characters!", fwp);
       }
       ch = fgetc(fp);
     }
@@ -153,8 +160,7 @@ Token getNextToken(FILE* fp, FILE* fwp){
   if (operatorStatus != 0) {
     if(operatorStatus == 1){
       if (ch == ':') {
-        printf("Invalid operator, assignment operator must be used like ':='\n");
-        exit(1);
+        raiseError("Invalid operator, assignment operator must be used like ':='", fwp);
       }
       token.lexeme[0] = ch;
       token.lexeme[1] = '\0';
@@ -173,14 +179,13 @@ Token getNextToken(FILE* fp, FILE* fwp){
     while (isdigit(ch)) {
       token.lexeme[j++] = ch;
       if(j > MAX_INT_LEN) {
-        printf("Integers must be smaller or equal than %d digits!\n",MAX_INT_LEN);
-        exit(1);
+        //TODO:
+        raiseError("Integers must be smaller or equal than 10 digits!", fwp);
       }
       ch = fgetc(fp);
     }
     if (isalpha(ch) || ch == '_') {
-      printf("Identifiers can't start with numbers!\n");
-      exit(1);
+      raiseError("Identifiers can't start with numbers!", fwp);
     }
     ungetc(ch,fp);
     token.lexeme[j] = '\0';
@@ -190,22 +195,21 @@ Token getNextToken(FILE* fp, FILE* fwp){
 
   if(ch == '"') {
     ch = fgetc(fp);
-    printf("StringConst(\"");
     fprintf(fwp, "StringConst(\"");
     while(ch != '"') {
       if(ch == EOF){
-        printf("String must be terminated before file ends!\n");
-        exit(1);
+        raiseError("String must be terminated before file ends!", fwp);
         }
-      printf("%c", ch);
       fprintf(fwp, "%c", ch);
       ch = fgetc(fp);
     }
-    printf("\")\n");
     fprintf(fwp, "\")\n");
     token.type = STRING_CONST;
     return token;
   }
+
+  token.type = NO_TYPE;
+  return token;
 }
 
 
@@ -232,49 +236,38 @@ int main (int argc, char *argv[]) {
     token = getNextToken(fp, fwp);
     switch (token.type) {
       case IDENTIFIER:
-        printf("Identifier(%s)\n", token.lexeme);
         fprintf(fwp, "Identifier(%s)\n", token.lexeme);
         break;
       case INT_CONST:
-        printf("IntConst(%s)\n", token.lexeme);
         fprintf(fwp, "IntConst(%s)\n", token.lexeme);
         break;
       case OPERATOR:
-        printf("Operator(%s)\n", token.lexeme);
         fprintf(fwp, "Operator(%s)\n", token.lexeme);
         break;
       case LEFT_PAR:
-        printf("LeftPar\n");
         fprintf(fwp, "LeftPar\n");
         break;
       case RIGHT_PAR:
-        printf("RightPar\n");
         fprintf(fwp, "RightPar\n");
         break;
       case LEFT_SQUARE_BRACKET:
-        printf("LeftSquareBracket\n");
         fprintf(fwp, "LeftSquareBracket\n");
         break;
       case RIGHT_SQUARE_BRACKET:
-        printf("RightSquareBracket\n");
         fprintf(fwp, "RightSquareBracket\n");
         break;
       case LEFT_CURLY_BRACKET:
-        printf("LeftCurlyBracket\n");
         fprintf(fwp, "LeftCurlyBracket\n");
         break;
       case RIGHT_CURLY_BRACKET:
-        printf("RightCurlyBracket\n");
         fprintf(fwp, "RightCurlyBracket\n");
         break;
       case STRING_CONST:
         break;
       case KEYWORD:
-        printf("Keyword(%s)\n", token.lexeme);
         fprintf(fwp, "Keyword(%s)\n", token.lexeme);
         break;
       case ENDOFLINE:
-        printf("EndOfLine\n");
         fprintf(fwp, "EndOfLine\n");
         break;
     }
@@ -283,6 +276,6 @@ int main (int argc, char *argv[]) {
   }
   fclose(fwp);
   fclose(fp);
-  printf("Lexical analysis completed!\n");
+  printf("Lexical analysis completed! output: code.lex\n");
   return 0;
 }
