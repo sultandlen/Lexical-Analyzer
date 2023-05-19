@@ -173,10 +173,14 @@ Token getNextToken(FILE* fp, FILE* fwp){
     while (isdigit(ch)) {
       token.lexeme[j++] = ch;
       if(j > MAX_INT_LEN) {
-        printf("Integers must be smaller or equal than %d digits\n",MAX_INT_LEN);
+        printf("Integers must be smaller or equal than %d digits!\n",MAX_INT_LEN);
         exit(1);
       }
       ch = fgetc(fp);
+    }
+    if (isalpha(ch) || ch == '_') {
+      printf("Identifiers can't start with numbers!\n");
+      exit(1);
     }
     ungetc(ch,fp);
     token.lexeme[j] = '\0';
@@ -190,7 +194,7 @@ Token getNextToken(FILE* fp, FILE* fwp){
     fprintf(fwp, "StringConst(\"");
     while(ch != '"') {
       if(ch == EOF){
-        printf("String must be terminated before file ends\n");
+        printf("String must be terminated before file ends!\n");
         exit(1);
         }
       printf("%c", ch);
