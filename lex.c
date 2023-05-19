@@ -6,6 +6,9 @@
 #define MAX_IDENT_LEN 30
 #define MAX_INT_LEN 10
 
+FILE* fp;
+FILE* fwp;
+
 typedef enum {
     IDENTIFIER,
     INT_CONST,
@@ -27,8 +30,8 @@ typedef struct {
     char lexeme[32];
 } Token;
 
-int isOperator (char ch, FILE *fp) {
-  const char* operators[] = {"+", "-", "*", ":"};
+int isOperator (char ch) {
+  const char* operators[] = {"+", "-", "*", ":", "="};
   int numOperators = sizeof(operators) / sizeof(operators[0]);
   for (int i = 0; i < numOperators; i++) {
     if (ch == *operators[i]) {
@@ -46,7 +49,7 @@ int isOperator (char ch, FILE *fp) {
   return 0;
 }
 
-void raiseError(char* message, FILE* fwp) {
+void raiseError(char* message) {
   printf("Lexical ERR!  %s\n", message);
   fprintf(fwp, "Lexical ERR! %s\n", message);
   printf("Detailed error information can be found in the output file code.lex\n");
@@ -64,7 +67,7 @@ void isKeyword (Token* token) {
   }
 }
 
-Token getNextToken(FILE* fp, FILE* fwp){
+Token getNextToken(){
   Token token;
 
   // Skip white spaces
@@ -86,7 +89,7 @@ Token getNextToken(FILE* fp, FILE* fwp){
     if (c == '*') {
       do {
         if (nextc == EOF) {
-          raiseError("Comment cannot terminated!", fwp);
+          raiseError("Comment cannot terminated!");
         }
         c = nextc;
         nextc = fgetc(fp);
@@ -106,7 +109,6 @@ Token getNextToken(FILE* fp, FILE* fwp){
   if (ch == ';') {
     token.type = ENDOFLINE;
     strcpy(token.lexeme, "EndOfLine"); //can't assign str to char[] directly!!
-    ch = fgetc(fp);
     return token;
   }
 
@@ -144,7 +146,7 @@ Token getNextToken(FILE* fp, FILE* fwp){
       token.lexeme[j++] = ch;
       if(j > MAX_IDENT_LEN) {
         //TODO:
-        raiseError("Identifiers must be smaller or equal than 30 characters!", fwp);
+        raiseError("Identifiers must be smaller or equal than 30 characters!");
       }
       ch = fgetc(fp);
     }
@@ -156,11 +158,11 @@ Token getNextToken(FILE* fp, FILE* fwp){
   }
 
   // Check for operators
-  int operatorStatus = isOperator(ch, fp);
+  int operatorStatus = isOperator(ch);
   if (operatorStatus != 0) {
     if(operatorStatus == 1){
       if (ch == ':') {
-        raiseError("Invalid operator, assignment operator must be used like ':='", fwp);
+        raiseError("Invalid operator, assignment operator must be used like ':='");
       }
       token.lexeme[0] = ch;
       token.lexeme[1] = '\0';
@@ -180,12 +182,12 @@ Token getNextToken(FILE* fp, FILE* fwp){
       token.lexeme[j++] = ch;
       if(j > MAX_INT_LEN) {
         //TODO:
-        raiseError("Integers must be smaller or equal than 10 digits!", fwp);
+        raiseError("Integers must be smaller or equal than 10 digits!");
       }
       ch = fgetc(fp);
     }
     if (isalpha(ch) || ch == '_') {
-      raiseError("Identifiers can't start with numbers!", fwp);
+      raiseError("Identifiers can't start with numbers!");
     }
     ungetc(ch,fp);
     token.lexeme[j] = '\0';
@@ -198,7 +200,7 @@ Token getNextToken(FILE* fp, FILE* fwp){
     fprintf(fwp, "StringConst(\"");
     while(ch != '"') {
       if(ch == EOF){
-        raiseError("String must be terminated before file ends!", fwp);
+        raiseError("String must be terminated before file ends!");
         }
       fprintf(fwp, "%c", ch);
       ch = fgetc(fp);
@@ -220,20 +222,20 @@ int main (int argc, char *argv[]) {
     file = argv[1];
   }
   
-  FILE *fp = fopen(file, "r");
+  fp = fopen(file, "r");
 
   if(fp == NULL) {
     printf("Cannot open file: %s\n", argv[1]);
     return 1;
   }
 
-  FILE * fwp = fopen("code.lex", "w");
+  fwp = fopen("code.lex", "w");
 
   Token token;
   char c = fgetc(fp);
   while (c != EOF){
     ungetc(c, fp);
-    token = getNextToken(fp, fwp);
+    token = getNextToken();
     switch (token.type) {
       case IDENTIFIER:
         fprintf(fwp, "Identifier(%s)\n", token.lexeme);
