@@ -31,7 +31,7 @@ typedef struct {
 } Token;
 
 int isOperator (char ch) {
-  const char* operators[] = {"+", "-", "*", ":", "="};
+  const char* operators[] = {"+", "-", "*", ":"};
   int numOperators = sizeof(operators) / sizeof(operators[0]);
   for (int i = 0; i < numOperators; i++) {
     if (ch == *operators[i]) {
@@ -54,6 +54,15 @@ void raiseError(char* message) {
   fprintf(fwp, "Lexical ERR! %s\n", message);
   printf("Detailed error information can be found in the output file code.lex\n");
   exit(1);
+}
+
+int isValid (char ch) {
+  //if (!isalnum(ch) || isOperator(ch) == 0 || ch == '=' || ch != '_') {
+  if (isOperator(ch) || isalnum(ch) || ch == '_') {
+    return 0;
+  }
+  printf("%c \n", ch);
+  raiseError("Unrecognized character");
 }
 
 void isKeyword (Token* token) {
@@ -81,7 +90,6 @@ Token getNextToken(){
     token.type = NO_TYPE;
     return token;
   }
-
   // Skip comments
   if (ch == '/') {
     char c = fgetc(fp);
@@ -137,7 +145,6 @@ Token getNextToken(){
     token.type = RIGHT_CURLY_BRACKET;
     return token;
   }
-
 
   // Check for identifier
   if (isalpha(ch)) { // Starts with letter
@@ -210,6 +217,7 @@ Token getNextToken(){
     return token;
   }
 
+  isValid(ch);
   token.type = NO_TYPE;
   return token;
 }
