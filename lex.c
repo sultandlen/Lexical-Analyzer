@@ -50,19 +50,21 @@ int isOperator (char ch) {
 }
 
 void raiseError(char* message) {
-  printf("Lexical ERR!  %s\n", message);
+  printf("Lexical ERR! %s\n", message);
   fprintf(fwp, "Lexical ERR! %s\n", message);
   printf("Detailed error information can be found in the output file code.lex\n");
   exit(1);
 }
 
 int isValid (char ch) {
-  //if (!isalnum(ch) || isOperator(ch) == 0 || ch == '=' || ch != '_') {
   if (isOperator(ch) || isalnum(ch) || ch == '_') {
     return 0;
   }
-  printf("%c \n", ch);
-  raiseError("Unrecognized character");
+
+  char errMessage[27];  // maximum length for the resulting string
+  sprintf(errMessage, "Unrecognized character: '%c'", ch);
+  raiseError(errMessage);
+  return -1;
 }
 
 void isKeyword (Token* token) {
@@ -152,8 +154,9 @@ Token getNextToken(){
     while ((isalnum(ch) || ch == '_')) {
       token.lexeme[j++] = ch;
       if(j > MAX_IDENT_LEN) {
-        //TODO:
-        raiseError("Identifiers must be smaller or equal than 30 characters!");
+        char errMessage[56];  // maximum length for the resulting string
+        sprintf(errMessage, "Identifiers must be smaller or equal than %d characters!", MAX_IDENT_LEN);
+        raiseError(errMessage);
       }
       ch = fgetc(fp);
     }
@@ -188,8 +191,9 @@ Token getNextToken(){
     while (isdigit(ch)) {
       token.lexeme[j++] = ch;
       if(j > MAX_INT_LEN) {
-        //TODO:
-        raiseError("Integers must be smaller or equal than 10 digits!");
+        char errMessage[49];  // maximum length for the resulting string
+        sprintf(errMessage, "Integers must be smaller or equal than %d digits!", MAX_INT_LEN);
+        raiseError(errMessage);
       }
       ch = fgetc(fp);
     }
