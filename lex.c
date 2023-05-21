@@ -52,8 +52,7 @@ int isOperator (char ch) {
 void raiseError(char* message) {
   printf("Lexical ERR! %s\n", message);
   fclose(fwp);
-  int s =  remove("code.lex");
-  if (s != 0) {
+  if (remove("code.lex") != 0) {
     printf("Error: unable to delete the file");
   }
   exit(1);
