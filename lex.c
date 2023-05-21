@@ -249,7 +249,7 @@ int main (int argc, char *argv[]) {
   fp = fopen(file, "r");
 
   if(fp == NULL) {
-    printf("Cannot open file: %s\n", argv[1]);
+    printf("Cannot open file: %s\n", file);
     return 1;
   }
 
