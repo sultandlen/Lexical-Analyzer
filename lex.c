@@ -81,11 +81,14 @@ void isKeyword (Token* token) {
   }
 }
 
-Token getNextToken(){
+Token getNextToken(Token *prevToken){
   Token token;
 
   // Skip white spaces
   char ch = fgetc(fp);
+  if (isspace(ch)) {
+    prevToken->type = NO_TYPE;
+  }
   while (isspace(ch)) {
     ch = fgetc(fp);
   }
@@ -190,6 +193,9 @@ Token getNextToken(){
 
   // Check for integer constants
   if (isdigit(ch)) {
+    if (prevToken->type == OPERATOR && strcmp(prevToken->lexeme, "-") == 0) {
+      raiseError("Negative values are not supported!");
+    }
     int j = 0;
     while (isdigit(ch)) {
       token.lexeme[j++] = ch;
@@ -251,10 +257,11 @@ int main (int argc, char *argv[]) {
   fwp = fopen("code.lex", "w");
 
   Token token;
+  Token prevToken;
   char c = fgetc(fp);
   while (c != EOF){
     ungetc(c, fp);
-    token = getNextToken();
+    token = getNextToken(&prevToken);
     switch (token.type) {
       case IDENTIFIER:
         fprintf(fwp, "Identifier(%s)\n", token.lexeme);
@@ -292,6 +299,7 @@ int main (int argc, char *argv[]) {
         fprintf(fwp, "EndOfLine\n");
         break;
     }
+    prevToken = token;
     token.type = NO_TYPE;
     c = fgetc(fp);
   }
