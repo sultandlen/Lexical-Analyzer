@@ -209,13 +209,17 @@ Token getNextToken(){
     return token;
   }
 
+  //check for string constants
   if(ch == '"') {
     ch = fgetc(fp);
     fprintf(fwp, "StringConst(\"");
     while(ch != '"') {
       if(ch == EOF){
         raiseError("String must be terminated before file ends!");
-        }
+      } else if (ch == '\n') {
+        ch = fgetc(fp);
+        continue;
+      }
       fprintf(fwp, "%c", ch);
       ch = fgetc(fp);
     }
